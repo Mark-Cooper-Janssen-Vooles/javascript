@@ -29,6 +29,7 @@ Contents
 - [Client-side vs Server-side](#client-side-vs-server-side)
 - [Web Crawler vs Web Scraper](#web-crawler-vs-web-scraper)
 - [React Lifecycle methods](#react-lifecycle-methods)
+- [React Hooks](#react-hooks)
 
 
 
@@ -654,3 +655,7 @@ A few methods:
 
 ---
 ## React Hooks
+- A new addition in react 16.8, they let you use state and other react features in a functional component without writing a class
+- can use `useState` hook instead of having to use a constructor
+- the `useEffect` hook can express all the combinations of react lifecycle methods above 
+- much simpler and cleaner to write functional components using hooks than class components
