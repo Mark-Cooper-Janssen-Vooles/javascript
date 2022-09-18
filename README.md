@@ -7,6 +7,7 @@ Contents
 - [Properties](#properties)
 - [Mutation](#mutation)
 - [Prototypes](#prototypes)
+- [Closure](#closure)
 
 ---
 ## The Javascript Universe
@@ -168,3 +169,42 @@ let weirdo = {
 ````
 
 Prototypes are unusual and most frameworks never embraced them. 
+
+---
+## Closure
+
+A closure is the combination of a function bundled together (enclosed) with references to its surrounding state.
+A closure gives you access to an outer functions scope from an inner function. In JS, closures are created every time a function is created, at function creation time. 
+
+````js
+function init() {
+  var name = 'Mozilla'; // name is a local variable created by init
+  function displayName() {
+    // displayName() is the inner function, a closure
+    console.log(name); // use variable declared in the parent function
+  }
+  displayName();
+}
+init();
+````
+- the displayName() function is only available within the body of init()
+
+
+Closures are useful because they let you associate data with a function that operates on that data
+````js
+function makeSizer(size) {
+  return function () {
+    document.body.style.fontSize = `${size}px`;
+  };
+}
+
+const size12 = makeSizer(12);
+const size14 = makeSizer(14);
+const size16 = makeSizer(16);
+````
+size12, size14, and size16 are now functions that resize the body text to 12, 14, and 16 pixels, respectively. You can attach them to buttons (in this case hyperlinks) as demonstrated in the following code example.
+````js
+document.getElementById('size-12').onclick = size12;
+document.getElementById('size-14').onclick = size14;
+document.getElementById('size-16').onclick = size16;
+````
