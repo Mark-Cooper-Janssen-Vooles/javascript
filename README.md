@@ -31,9 +31,6 @@ Contents
 - [React Lifecycle methods](#react-lifecycle-methods)
 - [React Hooks](#react-hooks)
 
-
-
-
 ---
 ## The Javascript Universe
 
