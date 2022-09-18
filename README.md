@@ -19,6 +19,12 @@ Contents
 - [Static Vs Dynamic Websites](#static-vs-dynamic-websites)
   - Headless CMS
 - [Frontend System Design](#front-end-system-design)
+- [Client Architecture](#client-architecture)
+  - Model view controller
+  - Model view presenter
+- [Optimisation Techniques in React](#optimisation-techniques-in-react)
+  - Webworkers
+- [Frontend Caching]
 
 
 
@@ -433,5 +439,114 @@ Focus on RADAD:
     - expected to be used on mobile web? smaller viewport and less powerful
 
 
+---
+## Client Architecture
+
+https://khalilstemmler.com/articles/client-side-architecture/architecture/
+
+Model view controller
+- Model handles data and logic 
+- View handles presentation
+- Controller turns user events into changes to the model
 
 
+Model view presenter
+- View creates user events
+- user events get turned into updates or changes to the model
+- when model changes, the view is updated with the new data
+
+---
+## Optimisation Techniques in React
+1. using immutable data structures
+2. function / stateless components
+3. multiple chunk files (webpack)
+4. using production mode flag in webpack
+5. dependency optimistion, i.e. use `moment-lcales-webpack-plugin` to remove unused locales in your final bundle if you don't need multi language support
+6. Use react fragments to avoid additional HTML element wrappers, instead of div etc.
+7. avoid inline function definition in the render function
+````js
+render(){
+    const { comments } = this.state;
+    return (
+        comments.map((comment)=>{
+            return <Comment onClick={(e)=>{
+                this.setState({selectedCommentId:comment.commentId}) // i.e. don't do this, have a function above.
+            }} comment={comment} key={comment.id}/>
+        }) 
+    )
+}
+````
+8. Avoid spreading props on DOM elements as it adds "unknown HTML attribute", set them specifically.
+9. Use a CDN => one with server close to your users
+10. Use Web Workers for CPU extensive tasks
+  - web workers make it possible to run a script operation in a web applicaitons background thread, separate from the main execution thread
+  - this enables the main thread (usually the UI) to run without being blocked or slowed down
+````js
+// sort.worker.js
+
+// In-Place Sort function for sort post by number of comments
+export default  function sort() {
+    
+    self.addEventListener('message', e =>{
+        if (!e) return;
+        let posts = e.data;
+        
+        for (let index = 0, len = posts.length - 1; index < len; index++) {
+            for (let count = index+1; count < posts.length; count++) {
+                if (posts[index].commentCount > posts[count].commentCount) {
+                    const temp = posts[index];
+                    posts[index] = users[count];
+                    posts[count] = temp;
+                }
+            }
+        }
+        postMessage(posts);
+    });
+}
+
+// Posts.jsx
+export default Posts extends React.Component{
+
+    constructor(props){
+        super(posts);
+    }
+    state = {
+        posts: this.props.posts
+    }
+    componentDidMount() {
+        this.worker = new Worker('sort.worker.js');
+        
+        this.worker.addEventListener('message', event => {
+            const sortedPosts = event.data;
+            this.setState({
+                posts: sortedPosts
+            })
+        });
+    }
+
+    doSortingByComment = () => {
+        if(this.state.posts && this.state.posts.length){
+            this.worker.postMessage(this.state.posts);
+        }
+    }
+
+    render(){
+        const posts = this.state.posts;
+        return (
+            <React.Fragment>
+                <Button onClick={this.doSortingByComment}>
+                    Sort By Comments
+                </Button>
+                <PostList posts={posts}></PostList>
+            </React.Fragment>
+        )
+    }
+}
+````
+11. Analysing and optimising your webpack bundle bloat 
+  - use "webpack bundle analyzer" 
+12. consider server-side rendering => Next.js or Gatsby 
+
+
+---
+## Frontend Caching
