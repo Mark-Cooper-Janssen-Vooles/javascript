@@ -24,7 +24,7 @@ Contents
   - Model view presenter
 - [Optimisation Techniques in React](#optimisation-techniques-in-react)
   - Webworkers
-- [Frontend Caching]
+- [Frontend Caching](#frontend-caching)
 
 
 
@@ -550,3 +550,63 @@ export default Posts extends React.Component{
 
 ---
 ## Frontend Caching
+
+Stratergy 0: No caching
+````js
+let data
+axios.get('/data').then((response) => {
+  data = response.data.data
+})
+````
+- you will never have to worry about the freshness of your cache, because there is no cache
+- you may want to consider network latency and the knock on affect to your users experience
+
+Stratergy 1: Prefer API
+- Start by making the network request more reliable by caching the last successful response data and falling back to that if network response is unavailable 
+- very common in offline first applications, but offers little performance gain
+````js
+let data
+axios.get('data').then((response) => {
+  data = response.data.data
+}).catch(() => {
+  data = localStorage.getItem('data')
+})
+````
+
+Strategy 2: Prefer local
+- we pull the data over the network, save it to our cache and then retrieve it locally on subsequent page loads 
+- only useful for data that is highly unlikely to change, i.e. populating a country or language dropdown
+- but offers large performance gains
+````js
+let data = localStorage.getItem('data')
+if (!data) {
+  axios.get('/data').then((response) => {
+    data = response.data.data
+    localStorage.setItem('data', response.data.data)
+  })
+}
+````
+
+Strategy 3: Local then API
+- best of both worlds, it gives performance gains of cached data and reliability of eventually consistent data
+- i.e. preload app with local data and then update app and cache once network request has completed 
+````js
+let data = localStorage.getItem('data')
+axios.get('/data').then((response) => {
+  data = response.data.data
+  localStorage.setItem('data', response.data.data)
+})
+````
+- more intelligent example of only making the network request if something invalidates our cache, i.e. a version:
+````js
+const currentVersion = 2
+let data = localStorage.getItem('data')
+let version = localStorage.getItem('version')
+if (!version || version < currentVersion) {
+  axios.get('/data').then((response) => {
+    data = response.data.data
+    localStorage.setItem('data', response.data.data)
+    localStorage.setItem('version', currentVersion)
+  })
+}
+````
