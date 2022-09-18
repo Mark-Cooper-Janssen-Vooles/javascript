@@ -10,6 +10,17 @@ Contents
 - [Closure](#closure)
 - [Promises](#promises)
 - [The DOM](#dom)
+- [Core web and browser concepts](#core-web-and-browser-concepts)
+  - Initial Request
+  - DOM tree
+  - CSS Object model (CSSOM)
+  - Render Tree
+  - Rendering sequence (need to learn more about this)
+- [Static Vs Dynamic Websites](#static-vs-dynamic-websites)
+  - Headless CMS
+- [Frontend System Design](#front-end-system-design)
+
+
 
 ---
 ## The Javascript Universe
@@ -239,6 +250,188 @@ doSomething()
 
 ---
 ## DOM
+
+The Document Object Model (DOM) is the data representation of the objects that comprise the structure and content of a document on the web. 
+The DOM represents the document as nodes and objects so programming languages can interact with the page. It is an object orientated representation of the web page. 
+
+For example, the DOM specifies that the `querySelectorAll` method in the below code snippet must return a list of all the `<p>` elements in the document:
+````js
+const paragraphs = document.querySelectorAll("p");
+// paragraphs[0] is the first <p> element
+// paragraphs[1] is the second <p> element, etc.
+alert(paragraphs[0].nodeName);
+````
+
+To access the DOM you just have do use the `document` variable as shown above. You can do something like this even:
+````js
+<html lang="en">
+  <head>
+    <script>
+      // run this function when the document is loaded
+      window.onload = () => {
+        // create a couple of elements in an otherwise empty HTML page
+        const heading = document.createElement("h1");
+        const headingText = document.createTextNode("Big Head!");
+        heading.appendChild(headingText);
+        document.body.appendChild(heading);
+      };
+    </script>
+  </head>
+  <body></body>
+</html>
+````
+
+---
+## Core Web and Browser Concepts
+
+### Initial request
+When a browser sends a request to a server to fetch a HTML document, the server returns a HTML page in binary stream format. Basically a text file with the response header `Content-Type: text/html: charset=UTF-8`.
+The text/HTML is a MIME Type (tells browser its a HTML document) and the charset says what character encoding it has. 
+
+Using this info, the browser converts the binary format into a readable text file. 
+
+### DOM Tree
+This speeds it up. Looks something like:
+- HTML
+  - head
+    - title
+    - link
+  - body
+    - div
+      - h1
+        - text node
+      - p
+        - text node
+    - script
+
+### CSS Object Model (CSSOM)
+CSS, cascading style sheets, make websites look good. 
+
+After constructing the DOM, the browser reads CSS and constructs the CSSOM.
+If certain CSS values aren't defined, they're set to the default set by the W3C css standard. 
+
+
+### Render Tree 
+This is a tree-like structure that combines DOM and CSSOM together. 
+
+### Rendering Sequence 
+1. When a web page is loaded, the browser first reads the HTML text and constructs a DOM tree from it.
+2. Then it processes the CSS and constructs a CSSOM tree from it.
+3. Then if constructs the Render Tree from it.
+4. Then the browser starts printing the individual elements on the screen, starting with the Layout operation from the render tree
+5. It then does the Paint operation from the render tree 
+6. It then does the Compositing operation from the render tree (this is when it starts being drawn on the screen)
+
+This sequence above is done by the "browser engine" / "layout engine" / "rendering engine" which resides in the browser. 
+Examples include Webkit (safari), Blink (chromium)
+
+Different browser engines do it differently 
+- parsing and external resources is the process of reading HTML content and constructing a DOM tree from it."DOM parsing" 
+
+
+- `FP` is "First paint", the time at which the browser started printing things on the screen -i.e. first pixel of background colour
+- `FCP` is "First Contentful Paint", which means the time at whic hthe browser has rendered the first pixel of the content such as text or image 
+- `LCP` is "Largest Contentful Paint", the time at which the browser has rendered large pieces of text or image
+
+Recommendations around how long each of these should be is found at "Core Web Vitals" reports via google is one option
+
+
+---
+## Static vs Dynamic Websites
+
+When discussing whether a site is static or dynamic, half of the battle is determining what aspect of the site you’re discussing. The code of the page, delivery of the page, and the client browser can all be considered either static or dynamic.
+
+CODE
+  - Static: content is hard-coded on the page
+  - Dynamic: references to content that are controlled externally with a CMS or database
+
+Delivery
+  - Static: Deliver static code that is pre-rendered (usually via a CDN)
+  - Dynamic: code is rendered in real time by the server
+
+Client Browser
+  - Static: Page doesn't change, remains static for all who access it 
+  - Dynamic: Use JS to change page content, animation, etc in realtime.
+
+
+We generally refer to the delivery - how a site is rendered. 
+Sites can be dynamically generated, cached and served statically. Static sites can have dynamic components. 
+Static sites can be less expensive than dynamic sites to build, but hooking up to a headless CMS can make it expensive. 
+
+The more static, the better the load times. 
+
+Usage
+- Static sites: Sites that are simple and will not change much - brochure site, blog, landing page 
+- Dynamic sites: you want personalisation, login, scalability, CMS, web app
+
+
+### Headless CMS
+A headless CMS is a content management system containing only backend code without frontend design. Content can be retrieved via APIs, which allows creators to publish across any device or digital asset, streamlining workflows for a digital-first world. 
+
+It allows you to manage content in one place and be able to deploy that content across any frontend you choose (i.e pc, phone, smart watch)
+
+---
+## Front End System Design
+
+https://www.frontendinterviewhandbook.com/front-end-system-design
+
+Two main kinds of frontend system design are UI components and applications. 
+- UI Components
+  - Image carousel
+  - Selector
+- Applications
+  - News feed
+  - Video watching website
+  - Chat application
+
+### UI Components
+Focus on RADAD:
+1. requirements clarifications/ alignment
+  - primary device it will be used on, desktop?
+  - which browsers to support?
+  - support internationalisation?
+  - accessibility?
+2. architecture - UI compoent or App, draw diagram
+  - i.e. an Image Carousel
+    - main image
+    - thumbnails
+    - image store (client side cache of list of photos to display)
+3. Data model - how will it store data passed into it? data structures?
+  - component state (i.e. react)
+  - lifecycle methods 
+  - each component should maintain its own independent state if possible
+  - if component has multiple sub-components, best to keep state in parent component
+4. API design - what options are allowed etc
+  - i.e. you want to reuse components if possible
+  - what are configuration options you would allow for the component (props in react). reasonable defaults?
+  - open-closed principal: open for extension but closed for modification.
+5. Deep dive - UX, performance, Accessibility, internationalisation, multi-device support, security (i.e. input form)
+  - UX:
+    - reflect state of component to user (loading icon)
+    - display an empty state if no items in a list, instead of not rendering anything 
+    - destructive actions should have a confirmation step
+    - disable interactive elements if they trigger async requests
+    - if search inputs involved, each keystroke should not fire a network request
+    - handle extreme cases: super long or short strings 
+    - if many items, pagination or contain them with a max width/ height
+    - keyboard friendliness: keyboard only users , tabbing etc. 
+  - Performance
+    - loading speed
+      - less JS the faster
+    - responsiveness to user interactions
+      - if user interactions results in requesting data to be loaded over a network, minimising that delay or removing it can be key. 
+    - memory space
+      - the more memory the component takes up, the slower the browser performances and the experience will feel sluggish / janky 
+  - Accessibility (a11y)
+    - color contrasts
+    - keyboard friendliness
+    - visual impairment
+    - transcripts for audio
+  - Internationalisation 
+    - Strings used in the component shouldn't be hardcoded to a specific language 
+  - Mutli-device support
+    - expected to be used on mobile web? smaller viewport and less powerful
+
 
 
 
