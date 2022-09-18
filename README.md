@@ -8,6 +8,8 @@ Contents
 - [Mutation](#mutation)
 - [Prototypes](#prototypes)
 - [Closure](#closure)
+- [Promises](#promises)
+- [The DOM](#dom)
 
 ---
 ## The Javascript Universe
@@ -208,3 +210,35 @@ document.getElementById('size-12').onclick = size12;
 document.getElementById('size-14').onclick = size14;
 document.getElementById('size-16').onclick = size16;
 ````
+
+----
+## Promises
+The `Promise` object represents the eventual completion (or failure) of an asynchronous operation and its resulting value
+It is a proxy for a value not necessarily known when the promise is created. 
+
+
+A promise is a returned object to which you attach callbacks, instead of passing callbacks into a function. 
+````js
+createAudioFileAsync(audioSettings).then(successCallback, failureCallback);
+// depending on if it succeeded or failed, it will call that callback.
+````
+- Callbacks added with then() will never be invoked before the completion of the current run of the JavaScript event loop.
+- Multiple callbacks may be added by calling then() several times. They will be invoked one after another, in the order in 
+- A common need is to execute two or more asynchronous operations back to back, where each subsequent operation starts when the previous operation succeeds, with the result from the previous step. We accomplish this by creating a promise chain.
+````js
+doSomething()
+  .then((url) => fetch(url))
+  .then((res) => res.json())
+  .then((data) => {
+    listOfIngredients.push(data);
+  })
+  .then(() => {
+    console.log(listOfIngredients);
+  });
+````
+
+---
+## DOM
+
+
+
