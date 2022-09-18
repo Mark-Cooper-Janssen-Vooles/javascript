@@ -25,6 +25,7 @@ Contents
 - [Optimisation Techniques in React](#optimisation-techniques-in-react)
   - Webworkers
 - [Frontend Caching](#frontend-caching)
+- [Debugging in JS](#debugging-in-js)
 
 
 
@@ -610,3 +611,16 @@ if (!version || version < currentVersion) {
   })
 }
 ````
+
+
+---
+## Debugging in JS
+
+A few methods: 
+- the console.log() method. Write a console.log and open dev tools 'console' tab.
+- setting breakpoints 
+  - using the 'debugger' keyword stops execution of JavaScript and calls the debugging function
+
+
+---
+##
