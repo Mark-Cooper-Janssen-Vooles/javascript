@@ -26,6 +26,8 @@ Contents
   - Webworkers
 - [Frontend Caching](#frontend-caching)
 - [Debugging in JS](#debugging-in-js)
+- [Client-side vs Server-side](#client-side-vs-server-side)
+
 
 
 
@@ -623,4 +625,13 @@ A few methods:
 
 
 ---
-##
+## Client Side vs Server Side
+- Client-side means the action takes place on the users (the clients) computer.
+  - almost every computer in the world understands javascript, so most things can be accomplished client-side in javascript
+  - usually considered frontend development
+- Server-side means it takes place on a web server 
+  - i.e. other programming languages not known by a computer and databases etc need to be done server-side (think API calls, backends, etc)
+  - usually considered backend development
+
+---
+## 
