@@ -27,6 +27,8 @@ Contents
 - [Frontend Caching](#frontend-caching)
 - [Debugging in JS](#debugging-in-js)
 - [Client-side vs Server-side](#client-side-vs-server-side)
+- [Web Crawler vs Web Scraper](#web-crawler-vs-web-scraper)
+- [React Lifecycle methods](#react-lifecycle-methods)
 
 
 
@@ -634,4 +636,21 @@ A few methods:
   - usually considered backend development
 
 ---
-## 
+## Web Crawler vs Web Scraper 
+
+- A web crawler will generally go through every single page on a website, rather than a subset of pages 
+  - the process of using bots (or spiders) to read and store all of the content on a website for archiving or indexing purposes
+  - think search engines like Google, they do this and index it
+- A web scraper will focus on a specific set of data on a website. I.e. product details, stock prices. 
+  - the extraction of data from a website or webpage
+- In short Web Scraping has a much more focused approach and purpose while Web Crawler will scan and extract all data on a website. 
+
+---
+## React Lifecycle methods
+- `componentDidMount()` called when an instance of a component is being created and inserted into the DOM
+- `componentDidUpdate(` An update caused by changes to props or state, called when a component is being re-rendered
+- `componentWillUnmount()` called when a component is being removed from the DOM
+- `componentDidCatch()` called when there is an error during rendering, in a lifecycle method, or in the constructor of any child component
+
+---
+## React Hooks
