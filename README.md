@@ -1,4 +1,4 @@
-# JavaScript 
+# JavaScript and Frontend Fundamentals
 
 Contents
 - [The JavaScript Universe](#the-javascript-universe)
