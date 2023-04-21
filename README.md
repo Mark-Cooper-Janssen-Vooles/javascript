@@ -37,7 +37,7 @@ Contents
 A mental model: 
 - A value is separate to our code 
 - Our code interacts with values, but values exist in a completely separate space 
-- Code is more like a list of instructions - if sarements, variable declarations etc
+- Code is more like a list of instructions - if statements, variable declarations etc
 - Values are: booleans, numbers, strings, symbols, functions, objects, null, undefined
 
 Primitive values: A permanent part of JS. You can point to them but can't create, destroy or change them
@@ -57,7 +57,7 @@ No other fundamental value types. Check the type with `console.log(typeof("hello
 
 
 ---
-## VAlues and Variables
+## Values and Variables
 
 Primitive Values are Immutable (unchangable)
 - i.e.
@@ -80,10 +80,10 @@ Variables are wires that just point to values, we can change what they point to
 ---
 ## Equality 
 - Strinct Equality `a === b`
-  - pretty much the same as 'same value qaulity' except two rare cases
+  - pretty much the same as 'same value equality' except two rare cases
 - Loose equality `a == b`
   - many issues arise, do not use in modern code.
-- same value qaulity `Object.is(a, b)`
+- same value equality `Object.is(a, b)`
   - points to the same value
 
 ---
