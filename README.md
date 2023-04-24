@@ -8,7 +8,13 @@ Contents
 - [Mutation](#mutation)
 - [Prototypes](#prototypes)
 - [Closure](#closure)
+- [Callbacks](#callbacks)
+- [Synchronous vs Asynchronous execution](#Synchronous-vs-Asynchronous-execution)
 - [Promises](#promises)
+- [Fetch API](#fetch-api)
+- [Objects](#objects)
+- [Maps vs Objects](#maps-vs-objects)
+- [Event loop](#event-loop)
 - [The DOM](#dom)
 - [Core web and browser concepts](#core-web-and-browser-concepts)
   - Initial Request
@@ -231,6 +237,69 @@ document.getElementById('size-14').onclick = size14;
 document.getElementById('size-16').onclick = size16;
 ````
 
+Another explanation:
+- useful to create scope for a variable so it can only be accessed within that function.
+	- may use functions within that function to alter the variable(s)
+- stops the ability of outside accidental variable change
+- if the closure returns a function, it can be useful if you want to use that particular flavour of function over and over.
+I.e.
+````js
+Const createAdder = (a) => {
+	return (b) => {
+		return a + b
+	}
+}
+Const add10 = createAdder(10)
+console.log(add10(-2)) //8
+console.log(add10(20) //30
+````
+This also uses ‘currying’ => transforming a single function that takes a lot of arguments into single functions the take a subset of those arguments. i.e. the uncurried version would be `const add = (a, b) => a + b`
+
+---
+## Callbacks 
+
+Callbacks:
+A callback function is a function passed in as an argument to another function, to be executed in that parent function.
+Often used for asynchronous code - the function passed can be called when the data is ready in the receiving function. A standard pattern is the first argument is an error, and the second is the data:
+````js
+getPuzzle((error, puzzle) => {
+	if (error) {
+		console.log(“error:“, error)
+	} else {
+		console.log(puzzle)
+	}
+})
+````
+Where getPuzzle would only execute the function passed in once the async code is completed:
+````js
+Const getPuzzle = (callback) => {
+	fetch(‘someurl.com’)
+		.then((response) => response.json())
+		.then((data) => {
+			callback(undefined, data)
+		})
+		.catch((error) => {
+			callback(error, undefined)
+		}
+}
+````
+
+---
+## Synchronous vs Asynchronous execution 
+
+- Synchronous:
+	- we need to wait till the task completes before moving on to the next one of code
+	- this can cause the browser to ‘lock up’, i.e. a checkbox is unclickable for this duration
+	- each synchronous execution that takes time will cause a longer wait, and will have individual wait times (not simultaneous)
+	- if two requests taking 1 second each, we need to wait 2 seconds for our program to complete.
+- Asynchronous:
+	- we can start fetching things, but then move on to the next line of execution.
+	- the user has a far reduced waiting period and nothing is locked up
+	- we can then run through all the code and complete it
+	- we then wait for the async tasks to complete
+	- the two async calls can be waited on simultaneously. If a request takes 1 second, even if there are two requests we will still only wait around 1 second.
+
+
 ----
 ## Promises
 The `Promise` object represents the eventual completion (or failure) of an asynchronous operation and its resulting value
@@ -241,7 +310,25 @@ A promise is a returned object to which you attach callbacks, instead of passing
 ````js
 createAudioFileAsync(audioSettings).then(successCallback, failureCallback);
 // depending on if it succeeded or failed, it will call that callback.
+
+
+
+// resolve is what happens when things go well, reject is when things go bad (built into the promise object). Similar to callback arguments, except you have to separate functions now.
+Const myPromise = new Promise((resolve, reject) => {
+	setTimeout(() => {
+		resolve(‘this is the promise data’) // things went well
+		// reject(’this is the promise error) // call this if things went poorly
+	}, 2000)
+})
+
+// .then is called when things resolve above, i.e. they went well.
+myPromise.then((data) => { // this first function argument called if it resolves, i.e. went well
+	console.log(data)
+}, (error) => {
+	console.log(err) // this 2nd function argument is called when there’s an error above
+})
 ````
+- when working with promises, you can return whatever you want from a .then - it will then get passed along to the next .then, it doesn’t necessarily have to be another promise.
 - Callbacks added with then() will never be invoked before the completion of the current run of the JavaScript event loop.
 - Multiple callbacks may be added by calling then() several times. They will be invoked one after another, in the order in 
 - A common need is to execute two or more asynchronous operations back to back, where each subsequent operation starts when the previous operation succeeds, with the result from the previous step. We accomplish this by creating a promise chain.
@@ -256,6 +343,182 @@ doSomething()
     console.log(listOfIngredients);
   });
 ````
+
+- using promises:
+    - an object representing the eventual completion or failure of an async operation 
+    - most people are consumers of already-created promises 
+      - a promise is a returned object to which you attach callbacks, instead of passing callbacks into a function. 
+      - i.e.  Imagine a function, createAudioFileAsync(), which asynchronously generates a sound file given a configuration record and two callback functions: one called if the audio file is successfully created, and the other called if an error occurs:
+      ````js
+      // not using promises:
+      function successCallback(result) {
+        console.log(`Audio file ready at URL: ${result}`);
+      }
+
+      function failureCallback(error) {
+        console.error(`Error generating audio file: ${error}`);
+      }
+
+      createAudioFileAsync(audioSettings, successCallback, failureCallback);
+
+      // if re-written to return a promise, you would attach callbacks to it instead: 
+      createAudioFileAsync(audioSettings).then(successCallback, failureCallback);
+      ````
+      - the advantages of promises:
+        - chaining: if we need to execute two or more async operations, it leads to ugly nested code 
+        ````js
+        // non-promises:
+        doSomething(function (result) {
+          doSomethingElse(result, function (newResult) {
+            doThirdThing(newResult, function (finalResult) {
+              console.log(`Got the final result: ${finalResult}`);
+            }, failureCallback);
+          }, failureCallback);
+        }, failureCallback);
+
+        // promises: 
+        doSomething()
+          .then((result) => doSomethingElse(result))
+          .then((newResult) => doThirdThing(newResult))
+          .then((finalResult) => {
+            console.log(`Got the final result: ${finalResult}`); // note we need to return result otherwise the promise won't catch it. 
+          })
+          .catch(failureCallback);
+        ````
+        - We can also chain after a failure (after the `.catch`), useful if trying to do another task after a failure. 
+        - Error handling is much simpler using promises, you can use it right at the end instead of each time. 
+        - You can also do this using the async / await syntax by wrapping it in a try/catch block:
+        ````js
+        async function foo() {
+          try {
+            const result = await doSomething();
+            const newResult = await doSomethingElse(result);
+            const finalResult = await doThirdThing(newResult);
+            console.log(`Got the final result: ${finalResult}`);
+          } catch (error) {
+            failureCallback(error);
+          }
+        }
+        ````
+  - Composition tools refers to the ability to chain together multiple async operations to create a more complex workflow. 
+    - There a four currently: `Promise.all()`, `Promise.allSettled()`, `Promise.any()`, `Promise.race()`
+      - If one of the promises in the array rejects, `Promise.all()` immediately stops and aborts other operations.
+      - `Promise.allSettled()` however ensures all operations are complete before resolving
+      - These methods all run promises concurrently - a sequence of promises are started simultaneously and do not wait for each other. 
+      ````javascript
+      [func1, func2, func3]
+        .reduce((p, f) => p.then(f), Promise.resolve())
+        .then((result3) => {
+          /* use result3 */
+        });
+
+      // In this example, we reduce an array of asynchronous functions down to a promise chain. The code above is equivalent to:
+      Promise.resolve()
+      .then(func1)
+      .then(func2)
+      .then(func3)
+      .then((result3) => {
+        /* use result3 */
+      });
+      ````
+      - sequential composition can be done with async/await:
+      ````js
+      let result;
+      for (const f of [func1, func2, func3]) {
+        result = await f(result);
+      }
+      /* use last result (i.e. result3) */
+      ````
+  - Promise callbacks are handled as as `microtask` whereas `setTimeout() / setInterval()` and user events (i.e. listening to keyboard input etc) callbacks are handled as `task queues`
+  
+  
+---
+## Fetch API
+- fetch has promises built-in
+````js
+fetch(‘http://example.com’, {}).then((response) => {
+	if (response.status === 200) {
+		return response.json() // this parses the data as json, fetch gives this to us
+		// .json() returns another promise. We can either call .then again here, or return this promise (what we do)
+	} else {
+		throw new Error(`Status was ${response.status}`)
+	}
+}).then((data) => {
+	console.log(data)
+}).catch((error) => {
+	console.log(error)
+})
+````
+
+---
+
+## Objects 
+Object Oriented Programming:
+````js
+const person = new Person(‘Clancey’, ‘Turner’, 54)
+const bio = person.getBio()
+console.log(bio)
+````
+- using the class syntax is the new way:
+````js
+class PersonClass {
+	constructor(firstName, lastName, age) {
+		this.firstName = firstName
+		this.lastName = lastName
+		this.age = age
+		this.likes = likes
+	}
+	getBio() {	
+		let bio = `${this.firstName} is ${this.age}.`
+	}
+}
+Const myPerson = new PersonClass(‘Andrew’, ‘Mead’, 27)
+````
+
+---
+
+## Maps vs Objects 
+
+- What are the similarities and differences between Maps and Objects in Javascript?
+  - Similarities:
+    - both maps and objects can be used to store key-value pairs 
+    - both maps and objects can use any JavaScript value as a key
+    - both maps and objects are iterable, meaning you can loop over their contents 
+  - Differences:
+    - the primary difference is that maps allow any type of key, including objects. while objects only allow string and symbol keys. 
+    - maps maintain an order of their elements, while objects do not 
+    - maps have a built-in size property that returns the number of key-value pairs in the map, while Objects do not have built-in size properties 
+    - maps have a variety of built-in methods for working with keys and values, such as `set(), get(), has(), and delete()`. Objects have fewer built-in methods, such as `Object.keys()` and `Object.values()`. 
+    - maps are typically used for more advanced data structures, while Objects are typically used for simpler data structures. 
+  ````js
+  // Using a Map
+  const myMap = new Map();
+  const key1 = 'foo';
+  const key2 = {name: 'bar'};
+  myMap.set(key1, 'value1');
+  myMap.set(key2, 'value2');
+  console.log(myMap.get(key1)); // 'value1'
+  console.log(myMap.get(key2)); // 'value2'
+
+  // Using an Object
+  const myObj = {foo: 'value1', bar: 'value2'};
+  console.log(myObj.foo); // 'value1'
+  console.log(myObj.bar); // 'value2'
+  ````
+
+
+---
+
+## Event Loop
+
+- JS code has an 'event loop' which manages the 'task queue' a 'call stack':
+  - the event loop is a mechanism that manages the order in which tasks are executed in javascript
+    - it monitors the callstack and the task queue for new tasks to execute. 
+    - when the callstack is empty, the event loop takes the first task from the task queue (the oldest one) and adds it to the call stack for execution 
+      - the call stack fires off various functions, with the one most nested to be at the top and executed first 
+    - the task queue is where tasks like "setTimeout", callbacks, user events, and other asynchronous operations are stored until they are ready to be executed
+  - `setTimeout(()=>{}, 0)` will have to wait until `console.log('hi')` is run because it is an async task, thus its put second on the queue. the second argument is the minimum time required for it to run.
+  - A web worker has its own event loop / queue / call stack
 
 ---
 ## DOM
